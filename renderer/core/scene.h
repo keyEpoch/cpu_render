@@ -2,6 +2,7 @@
 
 #include "maths.h"
 #include "texture.h"
+#include "mesh.h"
 
 typedef struct {
     
