@@ -1,5 +1,6 @@
 #pragma once
 
+#include "api.h"
 #include "maths.h"
 
 typedef struct {
@@ -17,7 +18,6 @@ typedef struct mesh {
     vertex_t* vertices;       // 顶点
     vec3_t center;
 } mesh_t;
-
 
 /* mesh loading and releasing */
 mesh_t* mesh_load(const char* filename);
