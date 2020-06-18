@@ -1,6 +1,7 @@
 #include "mesh.h"
 #include "private.h"
 #include "macro.h"
+#include "darray.h"
 
 static mesh_t *load_obj(const char *filename) {
     vec3_t *positions = NULL;
@@ -102,6 +103,19 @@ mesh_t* mesh_load(const char* filename) {
 }
 
 void mesh_release(mesh_t* mesh) {
-
+    free(mesh->vertices);
+    free(mesh);
 }
 
+
+/* vertex retrieving */
+int mesh_get_num_faces(mesh_t* mesh) {       // mesh的face数目
+    return mesh->num_faces;
+}
+
+vertex_t* mesh_get_vertecs(mesh_t* mesh) {   // mesh的顶点数
+    return mesh->vertices;     
+}
+vec3_t mesh_get_center(mesh_t* mesh) {       // mesh的重心
+    return mesh->center;
+}

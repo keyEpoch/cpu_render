@@ -8,7 +8,8 @@ typedef struct {
     vec2_t texture_cood;     // texture_map 上对应的纹理坐标
     vec3_t normal;           // 顶点法向
     
-    vec4_t tangent;          // 
+    // 下面是跟 skeleton 相关的
+    vec4_t tangent;           
     vec4_t joint;
     vec4_t weight;
 } vertex_t;
