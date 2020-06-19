@@ -2,6 +2,76 @@
 #include "private.h"
 #include "macro.h"
 #include "darray.h"
+#include "graphics.h"
+#include "maths.h"
+
+/* mesh loading/releasing */
+
+static mesh_t *build_mesh(
+        vec3_t *positions, vec2_t *texcoords, vec3_t *normals,
+        vec4_t *tangents, vec4_t *joints, vec4_t *weights,
+        int *position_indices, int *texcoord_indices, int *normal_indices) {
+    vec3_t bbox_min = vec3_new(+1e6, +1e6, +1e6);
+    vec3_t bbox_max = vec3_new(-1e6, -1e6, -1e6);
+    int num_indices = darray_size(position_indices);
+    int num_faces = num_indices / 3;
+    vertex_t *vertices;
+    mesh_t *mesh;
+    int i;
+
+    assert(num_faces > 0 && num_faces * 3 == num_indices);
+    assert(darray_size(position_indices) == num_indices);
+    assert(darray_size(texcoord_indices) == num_indices);
+    assert(darray_size(normal_indices) == num_indices);
+
+    vertices = (vertex_t*)malloc(sizeof(vertex_t) * num_indices);
+    for (i = 0; i < num_indices; i++) {
+        int position_index = position_indices[i];
+        int texcoord_index = texcoord_indices[i];
+        int normal_index = normal_indices[i];
+        assert(position_index >= 0 && position_index < darray_size(positions));
+        assert(texcoord_index >= 0 && texcoord_index < darray_size(texcoords));
+        assert(normal_index >= 0 && normal_index < darray_size(normals));
+        vertices[i].position = positions[position_index];
+        vertices[i].texture_cood = texcoords[texcoord_index];
+        vertices[i].normal = normals[normal_index];
+
+        if (tangents) {
+            int tangent_index = position_index;
+            assert(tangent_index >= 0 && tangent_index < darray_size(tangents));
+            vertices[i].tangent = tangents[tangent_index];
+        } else {
+            vertices[i].tangent = vec4_new(1, 0, 0, 1);
+        }
+
+        if (joints) {
+            int joint_index = position_index;
+            assert(joint_index >= 0 && joint_index < darray_size(joints));
+            vertices[i].joint = joints[joint_index];
+        } else {
+            vertices[i].joint = vec4_new(0, 0, 0, 0);
+        }
+
+        if (weights) {
+            int weight_index = position_index;
+            assert(weight_index >= 0 && weight_index < darray_size(weights));
+            vertices[i].weight = weights[weight_index];
+        } else {
+            vertices[i].weight = vec4_new(0, 0, 0, 0);
+        }
+
+        bbox_min = vec3_min(bbox_min, vertices[i].position);
+        bbox_max = vec3_max(bbox_max, vertices[i].position);
+    }
+
+    mesh = (mesh_t*)malloc(sizeof(mesh_t));
+    mesh->num_faces = num_faces;
+    mesh->vertices = vertices;
+    // 两个最远的顶点就可以确定一个立方体，center就是这个立方体的center
+    mesh->center = vec3_div(vec3_add(bbox_min, bbox_max), 2);
+
+    return mesh;
+}
 
 static mesh_t *load_obj(const char *filename) {
     vec3_t *positions = NULL;
