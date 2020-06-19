@@ -2,8 +2,10 @@
 
 #include "maths.h"
 #include "texture.h"
+#include "graphics.h"
 #include "mesh.h"
 
+/* perframe_t */
 typedef struct {
     
     float frame_time;           // 每一帧的时间
@@ -38,13 +40,17 @@ typedef struct model {
     int opaque;               // 不透明度
     float distance;
 
-    // TODO: add polymorphism 
-
+    /* polymorphism 多态 */
+    void (*update) (struct model* model, perframe_t* perframe);
+    void (*draw) (struct model* model, framebuffer_t* framebuffer, \
+      int shadow_pass);
+    void (*release) (struct model* model);
+    
 } model_t;
 
 typedef struct {
     vec4_t background;        // 背景
-    model_t* sky_box;         // 天空盒子
+    model_t* skybox;         // 天空盒子
     model_t** models;         // 场景中会有很多model，所以就声明二级指针
 
     /* light intensity */ 
