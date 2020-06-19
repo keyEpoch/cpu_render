@@ -8,3 +8,5 @@ typedef struct {
 } texture_t;
 
 
+/* texture related functions */ 
+texture_t* texture_create(int width, int height);
