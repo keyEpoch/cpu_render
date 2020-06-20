@@ -10,3 +10,4 @@ typedef struct {
 
 /* texture related functions */ 
 texture_t* texture_create(int width, int height);
+void texture_release(texture_t* texture);

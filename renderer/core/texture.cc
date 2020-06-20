@@ -18,3 +18,8 @@ texture_t* texture_create(int width, int height) {
 
     return texture;
 }
+
+void texture_release(texture_t* texture) {
+    free(texture->buffer);
+    free(texture);
+}
