@@ -47,12 +47,30 @@ vec4_t vec4_new(float x, float y, float z, float w) {
 }
 
 vec4_t vec4_from_vec3(vec3_t v, float w) {
-    return 
+    return vec4_new(v.x, v.y, v.z, w);
 }
 
+vec3_t vec3_from_vec4(vec4_t v) {
+    return vec3_new(v.x, v.y, v.z);
+}
 
 
 /* float related functions */
 unsigned char float_to_uchar(float f) {     
     return (unsigned char)(f * 255);
+}
+
+
+
+/* mat4 related functions */
+vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
+    float res[4];
+    for (int i = 0; i < 4; ++i) {
+        float a = m.m[i][0] * v.x;
+        float b = m.m[i][1] * v.y;
+        float c = m.m[i][2] * v.z;
+        float d = m.m[i][3] * v.w;
+        res[i] = a + b + c + d;
+    }
+    return vec4_new(res[0], res[1], res[2], res[3]);
 }
