@@ -32,7 +32,15 @@ typedef struct {
 } joint_t;
 
 typedef struct skeleton {
+    float min_time;
+    float max_time;
+    int num_joints;
+    joint_t* joints;
     
+    /* cached results */
+    mat4_t* joint_matrics;     // 关节矩阵
+    mat3_t* normal_matrics;    // normal矩阵
+    float last_time;
 } skeleton_t;
 
 /* joint updating&retrieving */
