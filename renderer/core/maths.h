@@ -16,7 +16,7 @@ typedef struct {
 
 typedef struct {
     float x, y, z, w;
-} quat_t;
+} quat_t;            // quaternion 四元数
 
 /* matrix */
 typedef struct {
@@ -45,6 +45,7 @@ vec3_t vec3_div(vec3_t a, float divisor);
 
 vec3_t vec3_from_vec4(vec4_t v);
 
+vec3_t vec3_lerp(vec3_t a, vec3_t b, float t);
 
 /* vec4 related vectors */
 
@@ -55,6 +56,7 @@ vec4_t vec4_from_vec3(vec3_t v, float w);
 /* float related functions */
 unsigned char float_to_uchar(float f);   // f is in [0, 1]
 
+float float_lerp(float a, float b, float t);
 
 /* mat4 related functions */
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);

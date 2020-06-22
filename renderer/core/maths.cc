@@ -39,6 +39,13 @@ vec3_t vec3_div(vec3_t a, float divisor) {
     return vec3_mul(a, divisor);
 }
 
+vec3_t vec3_lerp(vec3_t a, vec3_t b, float t) {   // 根据t来进行vector插值
+    float x = float_lerp(a.x, b.x, t);
+    float y = float_lerp(a.y, b.y, t);
+    float z = float_lerp(a.z, b.z, t);
+    return vec3_new(x, y, z);
+}
+
 /* vec4 related apis */
 vec4_t vec4_new(float x, float y, float z, float w) {
     vec4_t vec4;
@@ -60,7 +67,9 @@ unsigned char float_to_uchar(float f) {
     return (unsigned char)(f * 255);
 }
 
-
+float float_lerp(float a, float b, float t) {
+    return a + (b - a) * t;      // 根据比例t，来进行float 插值操作
+}
 
 /* mat4 related functions */
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
