@@ -84,6 +84,22 @@ vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
     return vec4_new(res[0], res[1], res[2], res[3]);
 }
 
+mat4_t mat4_from_trs(vec3_t t, quat_t r, vec3_t s) {
+    mat4_t translation = mat4_translate(t.x, t.y, t.z);
+    mat4_t rotation = mat4_from_quat(r);
+    mat4_t scale = mat4_scale(s.x, s.y, s.z);
+    return mat4_mul_mat4(translation, mat4_mul_mat4(rotation, scale));
+}
+
+mat4_t mat4_identity(void) {
+    mat4_t m = {{
+        {1, 0, 0, 0},
+        {0, 1, 0, 0},
+        {0, 0, 1, 0},
+        {0, 0, 0, 1},
+    }};
+    return m;
+}
 
 /* quat related functions */
 quat_t quat_new(float x, float y, float z, float w) {
@@ -121,4 +137,25 @@ quat_t quat_slerp(quat_t a, quat_t b, float t) {     // quat 插值
         float w = factor_a * a.w + factor_b * b.w;
         return quat_new(x, y, z, w);
     }
+}
+
+/* transform matrics */
+
+/*
+ * 平移矩阵
+ * tx, ty, tz: the x, y, and z coordinates of a translation vector
+ *
+ *  1  0  0 tx
+ *  0  1  0 ty
+ *  0  0  1 tz
+ *  0  0  0  1
+ *
+ * see http://docs.gl/gl2/glTranslate
+ */
+mat4_t mat4_translate(float tx, float ty, float tz) {
+    mat4_t m = mat4_identity();
+    m.m[0][3] = tx;
+    m.m[1][3] = ty;
+    m.m[2][3] = tz;
+    return m;
 }
