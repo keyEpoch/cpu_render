@@ -12,8 +12,8 @@ typedef struct {
     mat4_t inverse_bind;
 
     /* translations 平移 */ 
-    int num_translations;
-    float* translation_times;
+    int num_translations;         // 平移次数
+    float* translation_times;     // 平移的时间
     vec3_t* translation_values;   // 平移的值
 
     /* rotations 旋转 */
