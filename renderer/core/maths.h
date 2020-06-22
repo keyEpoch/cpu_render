@@ -1,5 +1,7 @@
 #pragma once
 #include <cassert>
+#include "macro.h"
+#include <math.h>
 
 /* vector */
 typedef struct {
@@ -61,10 +63,12 @@ float float_lerp(float a, float b, float t);
 /* mat4 related functions */
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v);
 
+/* quat related functions */
+quat_t quat_new(float x, float y, float z, float w);
 
+float quat_dot(quat_t a, quat_t b);
 
-
-
+quat_t quat_slerp(quat_t a, quat_t b, float t);
 
 
 

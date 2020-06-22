@@ -83,3 +83,42 @@ vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
     }
     return vec4_new(res[0], res[1], res[2], res[3]);
 }
+
+
+/* quat related functions */
+quat_t quat_new(float x, float y, float z, float w) {
+    quat_t q;
+    q.x = x; q.y = y; q.z = z; q.w = w;
+    return q;
+}
+
+float quat_dot(quat_t a, quat_t b) {     // quat 点乘
+    return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+}
+
+quat_t quat_slerp(quat_t a, quat_t b, float t) {     // quat 插值
+    float cos_angle = quat_dot(a, b);
+    if (cos_angle < 0) {
+        b = quat_new(-b.x, -b.y, -b.z, -b.w);
+        cos_angle = -cos_angle;
+    }
+    if (cos_angle > 1 - EPSILON) {
+        float x = float_lerp(a.x, b.x, t);
+        float y = float_lerp(a.y, b.y, t);
+        float z = float_lerp(a.z, b.z, t);
+        float w = float_lerp(a.w, b.w, t);
+        return quat_new(x, y, z, w);
+    } else {
+        float angle = (float)acos(cos_angle);
+        float sin_angle = (float)sin(angle);
+        float angle_a = (1 - t) * angle;
+        float angle_b = t * angle;
+        float factor_a = (float)sin(angle_a) / sin_angle;
+        float factor_b = (float)sin(angle_b) / sin_angle;
+        float x = factor_a * a.x + factor_b * b.x;
+        float y = factor_a * a.y + factor_b * b.y;
+        float z = factor_a * a.z + factor_b * b.z;
+        float w = factor_a * a.w + factor_b * b.w;
+        return quat_new(x, y, z, w);
+    }
+}
