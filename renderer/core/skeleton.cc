@@ -99,7 +99,21 @@ void skeleton_update_joints(skeleton_t* skeleton, float frame_time) {
             vec3_t scale = get_scale(joint, frame_time);
 
             mat4_t joint_matrix;
-            mat4_t normal_matrix;
+            mat3_t normal_matrix;
+
+            joint->transform = mat4_from_trs(translation, rotation, scale);
+
+            if (joint->parent_index >= 0) {
+                joint_t *parent = &skeleton->joints[joint->parent_index];
+                joint->transform = mat4_mul_mat4(parent->transform,
+                                                 joint->transform);
+            }
+
+            joint_matrix = mat4_mul_mat4(joint->transform, joint->inverse_bind);
+            normal_matrix = mat3_inverse_transpose(mat3_from_mat4(joint_matrix));
+            skeleton->joint_matrices[i] = joint_matrix;
+            skeleton->normal_matrices[i] = normal_matrix;
         }
+        skeleton->last_time = frame_time;
     }
 }

@@ -38,8 +38,8 @@ typedef struct skeleton {
     joint_t* joints;
     
     /* cached results */
-    mat4_t* joint_matrics;     // 关节矩阵
-    mat3_t* normal_matrics;    // normal矩阵
+    mat4_t* joint_matrices;     // 关节矩阵
+    mat3_t* normal_matrices;    // normal矩阵
     float last_time;
 } skeleton_t;
 
