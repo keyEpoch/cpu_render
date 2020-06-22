@@ -3,6 +3,7 @@
 #include "../core/darray.h"
 #include "../core/mesh.h"
 #include "../core/maths.h"
+#include "../core/skeleton.h"
 
 /* static funcitons, only used in this file */
 static int count_num_faces(scene_t* scene) {
@@ -25,12 +26,16 @@ static bbox_t get_model_bbox(model_t* model) {
     mat4_t model_matrix = model->transform;
     bbox_t bbox;
 
-    // TODO: add skeleton relevant    
+    // 因为动画和skeleton会动，所以要计算一下运动周期中的bbox
     if (model->skeleton && model->attached >= 0) {
         mat4_t* joint_matrics;
         mat4_t node_matrix;
-        skeleton_update_joints(model->skeleton, 0);
+        skeleton_update_joints(model->skeleton, 0); 
+        joint_matrics = skeleton_get_joint_matrices(model->skeleton);
 
+        // 选取 attached 的那个关节
+        node_matrix = joint_matrics[model->attached];
+        model_matrix = mat4_mul_mat4(model_matrix, node_matrix);
     }
 
     bbox.bbox_min = vec3_new(+1e6, +1e6, +1e6);
