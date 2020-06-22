@@ -67,6 +67,10 @@ mat4_t mat4_from_trs(vec3_t t, quat_t r, vec3_t s);
 
 mat4_t mat4_identity(void);
 
+mat4_t mat4_from_quat(quat_t q);
+
+mat4_t mat4_mul_mat4(mat4_t a, mat4_t b);
+
 /* quat related functions */
 quat_t quat_new(float x, float y, float z, float w);
 
@@ -77,7 +81,7 @@ quat_t quat_slerp(quat_t a, quat_t b, float t);
 /* transform matrics */
 mat4_t mat4_translate(float tx, float ty, float tz);   // 平移矩阵
 
-
+mat4_t mat4_scale(float sx, float sy, float sz);
 
 
 

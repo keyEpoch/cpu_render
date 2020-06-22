@@ -84,6 +84,7 @@ vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
     return vec4_new(res[0], res[1], res[2], res[3]);
 }
 
+// 根据 平移向量，四元数，scale来得到一个总的transform矩阵
 mat4_t mat4_from_trs(vec3_t t, quat_t r, vec3_t s) {
     mat4_t translation = mat4_translate(t.x, t.y, t.z);
     mat4_t rotation = mat4_from_quat(r);
@@ -98,6 +99,40 @@ mat4_t mat4_identity(void) {
         {0, 0, 1, 0},
         {0, 0, 0, 1},
     }};
+    return m;
+}
+
+mat4_t mat4_from_quat(quat_t q) {
+    mat4_t m = mat4_identity();
+    float xx = q.x * q.x; float xy = q.x * q.y; float xz = q.x * q.z;
+    float xw = q.x * q.w; float yy = q.y * q.y; float yz = q.y * q.z;
+    float yw = q.y * q.w; float zz = q.z * q.z; float zw = q.z * q.w;
+
+    m.m[0][0] = 1 - 2 * (yy + zz);
+    m.m[0][1] = 2 * (xy - zw);
+    m.m[0][2] = 2 * (xz + yw);
+
+    m.m[1][0] = 2 * (xy + zw);
+    m.m[1][1] = 1 - 2 * (xx + zz);
+    m.m[1][2] = 2 * (yz - xw);
+
+    m.m[2][0] = 2 * (xz - yw);
+    m.m[2][1] = 2 * (yz + xw);
+    m.m[2][2] = 1 - 2 * (xx + yy);
+
+    return m;
+}
+
+mat4_t mat4_mul_mat4(mat4_t a, mat4_t b) {
+    mat4_t m = {{{0}}};
+    int i, j, k;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
+            for (k = 0; k < 4; k++) {
+                m.m[i][j] += a.m[i][k] * b.m[k][j];
+            }
+        }
+    }
     return m;
 }
 
@@ -157,5 +192,25 @@ mat4_t mat4_translate(float tx, float ty, float tz) {
     m.m[0][3] = tx;
     m.m[1][3] = ty;
     m.m[2][3] = tz;
+    return m;
+}
+
+
+/*
+ * sx, sy, sz: scale factors along the x, y, and z axes, respectively
+ *
+ * sx  0  0  0
+ *  0 sy  0  0
+ *  0  0 sz  0
+ *  0  0  0  1
+ *
+ * see http://docs.gl/gl2/glScale
+ */
+mat4_t mat4_scale(float sx, float sy, float sz) {
+    mat4_t m = mat4_identity();
+    assert(sx != 0 && sy != 0 && sz != 0);
+    m.m[0][0] = sx;
+    m.m[1][1] = sy;
+    m.m[2][2] = sz;
     return m;
 }
