@@ -32,7 +32,33 @@ static vec3_t get_translation(joint_t* joint, float frame_time) {
     }
 }
 
+static quat_t get_rotation(joint_t* joint, float frame_time) {
+    int num_rotations = joint->num_rotations;
+    float *rotation_times = joint->rotation_times;
+    quat_t *rotation_values = joint->rotation_values;
 
+    if (num_rotations == 0) {
+        return quat_new(0, 0, 0, 1);
+    } else if (frame_time <= rotation_times[0]) {
+        return rotation_values[0];
+    } else if (frame_time >= rotation_times[num_rotations - 1]) {
+        return rotation_values[num_rotations - 1];
+    } else {
+        int i;
+        for (i = 0; i < num_rotations - 1; i++) {
+            float curr_time = rotation_times[i];
+            float next_time = rotation_times[i + 1];
+            if (frame_time >= curr_time && frame_time < next_time) {
+                float t = (frame_time - curr_time) / (next_time - curr_time);
+                quat_t curr_rotation = rotation_values[i];
+                quat_t next_rotation = rotation_values[i + 1];
+                return quat_slerp(curr_rotation, next_rotation, t);
+            }
+        }
+        assert(0);
+        return quat_new(0, 0, 0, 1);
+    }
+}
 
 void skeleton_update_joints(skeleton_t* skeleton, float frame_time) {
     // fmod 相当于是对 float 的 mod，也就是取余
@@ -42,7 +68,7 @@ void skeleton_update_joints(skeleton_t* skeleton, float frame_time) {
             joint_t* joint = &skeleton->joints[i];
             vec3_t translation = get_translation(joint, frame_time);
             quat_t rotation = get_rotation(joint, frame_time);
-
+            
         }
     }
 }
