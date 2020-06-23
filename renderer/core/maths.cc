@@ -1,5 +1,13 @@
 #include "maths.h"
 
+/* some small functions, realize statically, only used in this file */
+static float mat3_determinant(mat3_t m) {
+    float a = +m.m[0][0] * (m.m[1][1] * m.m[2][2] - m.m[1][2] * m.m[2][1]);
+    float b = -m.m[0][1] * (m.m[1][0] * m.m[2][2] - m.m[1][2] * m.m[2][0]);
+    float c = +m.m[0][2] * (m.m[1][0] * m.m[2][1] - m.m[1][1] * m.m[2][0]);
+    return a + b + c;
+}
+
 /* vec3 related apis */
 vec3_t vec3_new(float x, float y, float z) {
     vec3_t vec3;
@@ -70,6 +78,45 @@ unsigned char float_to_uchar(float f) {
 float float_lerp(float a, float b, float t) {
     return a + (b - a) * t;      // 根据比例t，来进行float 插值操作
 }
+
+/* mat3 related functions */
+mat3_t mat3_from_mat4(mat4_t m) {
+    mat3_t n;
+    n.m[0][0] = m.m[0][0]; n.m[0][1] = m.m[0][1]; n.m[0][2] = m.m[0][2];
+    n.m[1][0] = m.m[1][0]; n.m[1][1] = m.m[1][1]; n.m[1][2] = m.m[1][2];
+    n.m[2][0] = m.m[2][0]; n.m[2][1] = m.m[2][1]; n.m[2][2] = m.m[2][2];
+    return n;
+}
+
+mat3_t mat3_inverse_transpose(mat3_t m) {
+    mat3_t inverse_transpose;  
+
+    mat3_t adjoint = mat3_adjoint(m);          // m 的伴随矩阵
+    float determinant = mat3_determinant(m);   // m 的行列式
+    float inv_determinant = 1 / determinant;   // m 的逆矩阵的行列式
+
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            inverse_transpose.m[i][j] = adjoint.m[i][j] * inv_determinant;
+        }
+    }
+    return inverse_transpose;  
+}
+
+mat3_t mat3_adjoint(mat3_t m) {      // mat3 的伴随矩阵
+    mat3_t adjoint;
+    adjoint.m[0][0] = +(m.m[1][1] * m.m[2][2] - m.m[2][1] * m.m[1][2]);
+    adjoint.m[0][1] = -(m.m[1][0] * m.m[2][2] - m.m[2][0] * m.m[1][2]);
+    adjoint.m[0][2] = +(m.m[1][0] * m.m[2][1] - m.m[2][0] * m.m[1][1]);
+    adjoint.m[1][0] = -(m.m[0][1] * m.m[2][2] - m.m[2][1] * m.m[0][2]);
+    adjoint.m[1][1] = +(m.m[0][0] * m.m[2][2] - m.m[2][0] * m.m[0][2]);
+    adjoint.m[1][2] = -(m.m[0][0] * m.m[2][1] - m.m[2][0] * m.m[0][1]);
+    adjoint.m[2][0] = +(m.m[0][1] * m.m[1][2] - m.m[1][1] * m.m[0][2]);
+    adjoint.m[2][1] = -(m.m[0][0] * m.m[1][2] - m.m[1][0] * m.m[0][2]);
+    adjoint.m[2][2] = +(m.m[0][0] * m.m[1][1] - m.m[1][0] * m.m[0][1]);
+    return adjoint;
+}
+
 
 /* mat4 related functions */
 vec4_t mat4_mul_vec4(mat4_t m, vec4_t v) {
@@ -197,6 +244,7 @@ mat4_t mat4_translate(float tx, float ty, float tz) {
 
 
 /*
+ * 缩放矩阵：用来实现将点按照x、y、z轴的方向缩放
  * sx, sy, sz: scale factors along the x, y, and z axes, respectively
  *
  * sx  0  0  0
@@ -214,3 +262,69 @@ mat4_t mat4_scale(float sx, float sy, float sz) {
     m.m[2][2] = sz;
     return m;
 }
+
+/*
+ * 绕x轴旋转的矩阵，注意用的是弧度
+ * angle: the angle of rotation, in radians
+ *
+ *  1  0  0  0
+ *  0  c -s  0
+ *  0  s  c  0
+ *  0  0  0  1
+ *
+ * see http://www.songho.ca/opengl/gl_anglestoaxes.html
+ */
+mat4_t mat4_rotate_x(float angle) {
+    float c = (float)cos(angle);
+    float s = (float)sin(angle);
+    mat4_t m = mat4_identity();
+    m.m[1][1] = c;
+    m.m[1][2] = -s;
+    m.m[2][1] = s;
+    m.m[2][2] = c;
+    return m;
+}
+
+/*
+ * angle: the angle of rotation, in radians
+ *
+ *  c  0  s  0
+ *  0  1  0  0
+ * -s  0  c  0
+ *  0  0  0  1
+ *
+ * see http://www.songho.ca/opengl/gl_anglestoaxes.html
+ */
+mat4_t mat4_rotate_y(float angle) {
+    float c = (float)cos(angle);
+    float s = (float)sin(angle);
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][2] = s;
+    m.m[2][0] = -s;
+    m.m[2][2] = c;
+    return m;
+}
+
+/*
+ * angle: the angle of rotation, in radians
+ *
+ *  c -s  0  0
+ *  s  c  0  0
+ *  0  0  1  0
+ *  0  0  0  1
+ *
+ * see http://www.songho.ca/opengl/gl_anglestoaxes.html
+ */
+mat4_t mat4_rotate_z(float angle) {
+    float c = (float)cos(angle);
+    float s = (float)sin(angle);
+    mat4_t m = mat4_identity();
+    m.m[0][0] = c;
+    m.m[0][1] = -s;
+    m.m[1][0] = s;
+    m.m[1][1] = c;
+    return m;
+}
+
+
